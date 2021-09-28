@@ -1,4 +1,4 @@
-package uk.ac;
+package uk.ac.ed.inf;
 
 public class LongLat {
     public double longitude;

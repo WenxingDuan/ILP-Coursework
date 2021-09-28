@@ -1,4 +1,4 @@
-package uk.ac;
+package uk.ac.ed.inf;
 
 public class Menus {
     String machine;
@@ -9,7 +9,7 @@ public class Menus {
         this.port = port;
     }
 
-    public int getDeliveryCost(String[] a) {
+    public int getDeliveryCost(String... a) {
         return 0;
     }
 }
