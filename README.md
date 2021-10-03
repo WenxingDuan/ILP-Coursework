@@ -1,19 +1,11 @@
 # Informatics Large Practical
 
-## Stephen Gilmore and Paul Jackson
-
-## School of Informatics, University of Edinburgh
-
-### Document version 1.0.
-
-### First issued on: September 22, 2021
-
-### First revised on: September 23, 2021
-
-### Date of this revision: September 28, 2021
+### Stephen Gilmore and Paul Jackson
+### School of Informatics, University of Edinburgh
+### PDF暴力转md，格式混乱，随便看看得了
 
 ## About
-PDF暴力转md，格式混乱，随便看看得了
+
 
 The Informatics Large Practical is a 20 point Level 9 course which is available for Year 3 undergraduate
 students on Informatics degrees. It is not available to visiting undergraduate students or students in Year 4
