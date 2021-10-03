@@ -48,7 +48,6 @@ public class Menus {
         this.machine = machine;
         this.port = port;
         this.address = "http://" + machine + ":" + port;
-        // this.client = new ClientIO(address);
         this.buildMenu();
         this.buildItem();
     }
