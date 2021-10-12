@@ -1,3 +1,8 @@
+/**
+ * Enpty class
+ *
+ * @author Duan Wenxing
+ */
 package uk.ac.ed.inf;
 
 public class App {

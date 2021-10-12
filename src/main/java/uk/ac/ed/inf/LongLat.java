@@ -65,7 +65,8 @@ public class LongLat {
      * @return the location after moving
      */
     public LongLat nextPosition(int degree) {
-        if (degree == -999) {
+        int hoverDegree = -999;
+        if (degree == hoverDegree) {
             return this;
         } else {
             double newLongitude = this.longitude + (0.00015 * Math.cos(Math.toRadians(degree)));

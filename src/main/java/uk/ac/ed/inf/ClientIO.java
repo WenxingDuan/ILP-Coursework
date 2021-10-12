@@ -13,7 +13,7 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.net.URI;
 
 public class ClientIO {
-    private static final HttpClient client = HttpClient.newHttpClient();
+    private static final HttpClient CLIENT = HttpClient.newHttpClient();
 
     /**
      * Static method to get the body of the input address
@@ -24,7 +24,7 @@ public class ClientIO {
     public static String get(String address) {
         HttpRequest request = HttpRequest.newBuilder().uri(URI.create(address)).build();
         try {
-            HttpResponse<String> response = ClientIO.client.send(request, BodyHandlers.ofString());
+            HttpResponse<String> response = ClientIO.CLIENT.send(request, BodyHandlers.ofString());
             return response.body();
         } catch (Exception e) {
             e.printStackTrace();
