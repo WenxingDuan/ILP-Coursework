@@ -16,7 +16,7 @@ public class Menus {
     String machine;
     String port;
     String address;
-    ClientIO client;
+    Client client;
     ArrayList<Manu> menus;
     ArrayList<Item> items = new ArrayList<Item>();
 
@@ -58,7 +58,7 @@ public class Menus {
      * 
      */
     private void buildMenu() {
-        String manuString = ClientIO.get(address + "/menus/menus.json");
+        String manuString = Client.get(address + "/menus/menus.json");
         Type respondType = new TypeToken<List<Manu>>() {
         }.getType();
         this.menus = new Gson().fromJson(manuString, respondType);

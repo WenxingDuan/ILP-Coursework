@@ -12,7 +12,7 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.net.URI;
 
-public class ClientIO {
+public class Client {
     private static final HttpClient CLIENT = HttpClient.newHttpClient();
 
     /**
@@ -24,7 +24,7 @@ public class ClientIO {
     public static String get(String address) {
         HttpRequest request = HttpRequest.newBuilder().uri(URI.create(address)).build();
         try {
-            HttpResponse<String> response = ClientIO.CLIENT.send(request, BodyHandlers.ofString());
+            HttpResponse<String> response = Client.CLIENT.send(request, BodyHandlers.ofString());
             return response.body();
         } catch (Exception e) {
             e.printStackTrace();
