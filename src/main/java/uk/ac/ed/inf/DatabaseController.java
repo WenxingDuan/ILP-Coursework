@@ -14,12 +14,12 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DatabaseHandler {
+public class DatabaseController {
     String jdbcString;
     Connection conn;
     Statement statement;
 
-    public DatabaseHandler(String port) throws SQLException {
+    public DatabaseController(String port) throws SQLException {
         this.jdbcString = "jdbc:derby://localhost:" + port + "/derbyDB";
         this.conn = DriverManager.getConnection(jdbcString);
         this.statement = conn.createStatement();
@@ -41,10 +41,11 @@ public class DatabaseHandler {
             List<String> items = orderDetailSearch(orderNumber);
             orders.add(new OrderDetail(orderNumber, deliveryDate, customer, deliverTo, items));
         }
+        rs.close();
         return orders;
     }
 
-    public List<String> orderDetailSearch(String orderNumber) {
+    private List<String> orderDetailSearch(String orderNumber) {
         final String orderDetailQuery = "select * from ORDERDETAILS where ORDERNO=(?)";
         List<String> detailList = new ArrayList<String>();
         try {
