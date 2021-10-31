@@ -5,18 +5,30 @@
  */
 package uk.ac.ed.inf;
 
+import java.util.List;
+
 public class App {
 
     public static void main(String[] args) {
 
-        // LongLat a = new
+        LongLat a = new LongLat(-3.188502788543701, 55.94387091698859);
+        LongLat b = new LongLat(-3.18728506565094, 55.94389194568147);
+        LongLat c = new LongLat(-3.187263607978821, 55.943543468726304);
+        LongLat d = new LongLat(-3.188443779945373, 55.943525443970906);
+
         // LongLatCatcher("9898").getCenterLongLat("blocks.found.civic");
 
         // System.out.println(Line2D.linesIntersect(0, 0, 1, 1, 0, 1, 1, 0));
         GeoController g = new GeoController("9898");
+        List<List<LongLat>> no = g.getNoFlyLongLat();
 
-        System.out.println(g.canFly(new LongLat(-3.1875211000442505, 55.94454833556847),
-                new LongLat(-3.1880843639373775, 55.94491182358009)));
+        List<LongLat> paths = PathOrganizer.organizePath(c, a, no);
+        // System.out.println(g.canFly(new LongLat(-3.1875211000442505,
+        // 55.94454833556847),
+        // new LongLat(-3.1880843639373775, 55.94491182358009)));
+        for (LongLat point : paths) {
+            System.out.println("[" + point.longitude + "," + point.latitude + "],");
+        }
 
         // System.out.println(g.getLandmarksLongLat().get(1).longitude);
 

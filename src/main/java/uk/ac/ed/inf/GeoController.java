@@ -1,8 +1,13 @@
+/**
+ * Class for dealing with geoJson.
+ *
+ * @author Duan Wenxing
+ */
+
 package uk.ac.ed.inf;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.awt.geom.Line2D;
 import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.Point;
 import com.mapbox.geojson.Polygon;
@@ -49,25 +54,16 @@ public class GeoController {
         for (Feature theFeature : landmarkFeatureCollection.features()) {
             Point point = (Point) theFeature.geometry();
             LongLat landmark = new LongLat(point.longitude(), point.latitude());
+            System.out.println(point.longitude());
             landmarksLongLat.add(landmark);
         }
         return landmarksLongLat;
-
     }
 
-    public boolean canFly(LongLat start, LongLat end) {
-        for (List<LongLat> currZonePoints : this.noFlyFeatureCollectionLongLat) {
-            for (int i = 0; i < currZonePoints.size() - 1; i++) {
-                LongLat currLinePoint1 = currZonePoints.get(i);
-                LongLat currLinePoint2 = currZonePoints.get(i + 1);
-                if (Line2D.linesIntersect(start.longitude, start.latitude, end.longitude, end.latitude,
-                        currLinePoint1.longitude, currLinePoint1.latitude, currLinePoint2.longitude,
-                        currLinePoint2.latitude)) {
-                    return false;
-                }
-            }
-        }
-        return true;
+    public List<List<LongLat>> getNoFlyLongLat() {
+        return this.noFlyFeatureCollectionLongLat;
     }
+
+
 
 }
