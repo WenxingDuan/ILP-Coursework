@@ -15,34 +15,45 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DatabaseController {
-    String jdbcString;
-    Connection conn;
-    Statement statement;
+    private String jdbcString;
+    private Connection conn;
+    private Statement statement;
 
-    public DatabaseController(String port) throws SQLException {
-        this.jdbcString = "jdbc:derby://localhost:" + port + "/derbyDB";
-        this.conn = DriverManager.getConnection(jdbcString);
-        this.statement = conn.createStatement();
+    public DatabaseController(String port) {
+        try {
+            this.jdbcString = "jdbc:derby://localhost:" + port + "/derbyDB";
+            this.conn = DriverManager.getConnection(jdbcString);
+            this.statement = conn.createStatement();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
-    public List<OrderDetail> orderSearch(String date) throws SQLException {
+    public List<OrderDetail> orderSearch(String date) {
         List<OrderDetail> orders = new ArrayList<OrderDetail>();
+        try {
+            final String orderQuery = "select * from ORDERS where DELIVERYDATE=(?)";
+            PreparedStatement psOrderQuery = this.conn.prepareStatement(orderQuery);
+            psOrderQuery.setString(1, date);
 
-        final String orderQuery = "select * from ORDERS where DELIVERYDATE=(?)";
-        PreparedStatement psOrderQuery = this.conn.prepareStatement(orderQuery);
-        psOrderQuery.setString(1, date);
+            ResultSet rs = psOrderQuery.executeQuery();
+            while (rs.next()) {
+                String orderNumber = rs.getString("ORDERNO");
+                String deliveryDate = rs.getString("DELIVERYDATE");
+                String customer = rs.getString("CUSTOMER");
+                String deliverTo = rs.getString("DELIVERTO");
+                List<String> items = orderDetailSearch(orderNumber);
+                orders.add(new OrderDetail(orderNumber, deliveryDate, customer, deliverTo, items));
+            }
+            rs.close();
+            return orders;
 
-        ResultSet rs = psOrderQuery.executeQuery();
-        while (rs.next()) {
-            String orderNumber = rs.getString("ORDERNO");
-            String deliveryDate = rs.getString("DELIVERYDATE");
-            String customer = rs.getString("CUSTOMER");
-            String deliverTo = rs.getString("DELIVERTO");
-            List<String> items = orderDetailSearch(orderNumber);
-            orders.add(new OrderDetail(orderNumber, deliveryDate, customer, deliverTo, items));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
-        rs.close();
-        return orders;
+
     }
 
     private List<String> orderDetailSearch(String orderNumber) {

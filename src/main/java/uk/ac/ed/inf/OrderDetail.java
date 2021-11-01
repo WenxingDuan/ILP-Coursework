@@ -9,11 +9,11 @@ package uk.ac.ed.inf;
 import java.util.List;
 
 public class OrderDetail {
-    String orderNumber;
-    String deliveryDate;
-    String customer;
-    String deliverTo;
-    List<String> items;
+    public String orderNumber;
+    public String deliveryDate;
+    public String customer;
+    public String deliverTo;
+    public List<String> items;
 
     public OrderDetail(String orderNumber, String deliveryDate, String customer, String deliverTo, List<String> items) {
         this.orderNumber = orderNumber;

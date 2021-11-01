@@ -12,9 +12,11 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 public class LongLatCatcher {
-    String port;
-    String address;
-    Client client;
+    private String port;
+    private String address;
+
+
+
 
     class LngLat {
         float lng;
@@ -40,6 +42,16 @@ public class LongLatCatcher {
     public LongLatCatcher(String port) {
         this.port = port;
         this.address = "http://localhost:" + port;
+
+
+    }
+
+
+    public LongLat getCenterLongLat(String words) {
+        String manuString = Client.get(linkBuilder(words));
+        LongLatDetail detail = buildLongLatDetail(manuString);
+        LongLat longLatDetail = new LongLat(detail.coordinates.lng, detail.coordinates.lat);
+        return longLatDetail;
     }
 
     private String linkBuilder(String words) {
@@ -51,13 +63,6 @@ public class LongLatCatcher {
         Type respondType = new TypeToken<LongLatDetail>() {
         }.getType();
         return new Gson().fromJson(detailString, respondType);
-    }
-
-    public LongLat getCenterLongLat(String words) {
-        String manuString = Client.get(linkBuilder(words));
-        LongLatDetail detail = buildLongLatDetail(manuString);
-        LongLat longLatDetail = new LongLat(detail.coordinates.lng, detail.coordinates.lat);
-        return longLatDetail;
     }
 
 }

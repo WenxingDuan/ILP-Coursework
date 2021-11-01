@@ -15,12 +15,11 @@ import com.mapbox.geojson.Feature;
 
 public class GeoController {
 
-    String port;
-    String address;
-    Client client;
-    FeatureCollection noFlyFeatureCollection;
-    FeatureCollection landmarkFeatureCollection;
-    List<List<LongLat>> noFlyFeatureCollectionLongLat = new ArrayList<List<LongLat>>();
+    private String port;
+    private String address;
+    private FeatureCollection noFlyFeatureCollection;
+    private FeatureCollection landmarkFeatureCollection;
+    private List<List<LongLat>> noFlyFeatureCollectionLongLat = new ArrayList<List<LongLat>>();
 
     public GeoController(String port) {
         this.port = port;
@@ -54,7 +53,7 @@ public class GeoController {
         for (Feature theFeature : landmarkFeatureCollection.features()) {
             Point point = (Point) theFeature.geometry();
             LongLat landmark = new LongLat(point.longitude(), point.latitude());
-            System.out.println(point.longitude());
+            // System.out.println(point.longitude());
             landmarksLongLat.add(landmark);
         }
         return landmarksLongLat;

@@ -41,23 +41,32 @@ public class PathOrganizer {
         return true;
     }
 
-    public static List<LongLat> organizePath(LongLat start, LongLat end, List<List<LongLat>> noFlyLongLat) {
+    public static List<LongLat> organizePath(LongLat start, LongLat end, double slope,
+            List<List<LongLat>> noFlyLongLat) {
         List<LongLat> pathLongLats = new ArrayList<LongLat>();
         pathLongLats.add(start);
-        double upper_longitude, upper_latitude, lower_longitude, lower_latitude;
-        double alpha = 170.0;
+        double alpha = 180.0 + 10 - slope * 2;
+        // System.out.println(alpha);
 
-        double delta_X = start.longitude - end.longitude;
-        double delta_Y = start.latitude - end.latitude;
+        if (alpha <= 0)
+            return null;
+
+        double upper_longitude, upper_latitude, lower_longitude, lower_latitude;
+        double delta_X = end.longitude - start.longitude;
+        double delta_Y = end.latitude - start.latitude;
         double degree = Math.toDegrees(Math.atan(delta_Y / delta_X));
 
-        if (delta_X > 0)
+        if (delta_X < 0)
             degree = degree + 180.0;
+        if (degree < 0)
+            degree = degree + 360.0;
+        // System.out.println(alpha);
 
         double distance = start.distanceTo(end);
-
-        double upperBound = upperDegree(degree);
-        double lowerBound = lowerDegree(degree);
+        double upperBound = upperDegree(degree) - 10 + slope;
+        double lowerBound = lowerDegree(degree) + 10 - slope;
+        // System.out.println(upperBound);
+        // System.out.println(lowerBound);
 
         double upperSideLen = distance / Math.sin(Math.toRadians(alpha))
                 * Math.sin(Math.toRadians(degree - lowerBound));
@@ -87,7 +96,46 @@ public class PathOrganizer {
             pathLongLats.add(end);
             return pathLongLats;
         }
-        return null;
+        return PathOrganizer.organizePath(start, end, slope + 10.0, noFlyLongLat);
+        // pathLongLats.add(upperPoint);
+        // pathLongLats.add(end);
+        // return pathLongLats;
+    }
+
+    public static List<LongLat> organizePathThoughLandmark(LongLat start, LongLat landmark, LongLat end,
+            List<List<LongLat>> noFlyLongLat) {
+        List<LongLat> firstPath = organizePath(start, landmark, 10.0, noFlyLongLat);
+        List<LongLat> secondPath = organizePath(landmark, end, 10.0, noFlyLongLat);
+        if (firstPath == null || secondPath == null)
+            return null;
+        else
+            {
+                firstPath.remove(firstPath.size()-1);
+                firstPath.addAll(secondPath);
+                return firstPath;
+            }
+
+    }
+
+    public static double distanceCalculator(List<LongLat> pathPoint) {
+        double distance = 0;
+        for (int i = 0; i < pathPoint.size() - 1; i++) {
+            distance = distance + pathPoint.get(i).distanceTo(pathPoint.get(i + 1));
+        }
+        return distance;
+    }
+
+    public static int degreeTwoPoints(LongLat start, LongLat end) {
+        double delta_X = end.longitude - start.longitude;
+        double delta_Y = end.latitude - start.latitude;
+        double degree = Math.toDegrees(Math.atan(delta_Y / delta_X));
+
+        if (delta_X < 0)
+            degree = degree + 180.0;
+        if (degree < 0)
+            degree = degree + 360.0;
+        degree = Math.round(degree);
+        return (int) degree;
     }
 
 }
