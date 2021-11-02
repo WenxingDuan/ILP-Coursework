@@ -5,10 +5,7 @@
  */
 package uk.ac.ed.inf;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+
 
 public class App {
 
@@ -47,21 +44,8 @@ public class App {
         // System.out.println(e.longitude);
         // System.out.println(e.latitude);
 
-        // PathBuilder p = new PathBuilder("9898", "1527");
-        SimpleDateFormat dateDF = new SimpleDateFormat("yyyy-MM-dd");
-        try {
+        PathBuilder p = new PathBuilder("9898", "1527");
 
-            Date date = dateDF.parse("2022-09-15");
-
-            String year_ = String.format("%tY", date);
-            String month_ = String.format("%tm", date);
-            String date_ = String.format("%td", date);
-
-            System.out.println(year_);
-            System.out.println(month_);
-            System.out.println(date_);
-        } catch (Exception e) {
-        }
 
         // List<PathBuilder.OrderDestination> paths = p.generatePath("2022-09-15");
         // for (PathBuilder.OrderDestination point : paths) {
