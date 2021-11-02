@@ -15,9 +15,6 @@ public class LongLatCatcher {
     private String port;
     private String address;
 
-
-
-
     class LngLat {
         float lng;
         float lat;

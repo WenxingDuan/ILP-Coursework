@@ -7,8 +7,13 @@
 package uk.ac.ed.inf;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.io.*;
+import java.text.SimpleDateFormat;
+
 import com.mapbox.geojson.FeatureCollection;
+import com.mapbox.geojson.LineString;
 import com.mapbox.geojson.Point;
 import com.mapbox.geojson.Polygon;
 import com.mapbox.geojson.Feature;
@@ -63,6 +68,27 @@ public class GeoController {
         return this.noFlyFeatureCollectionLongLat;
     }
 
-
+    public void storeFlightPath(List<LongLat> paths, String dateString) {
+        SimpleDateFormat dateDF = new SimpleDateFormat("yyyy-MM-dd");
+        List<Point> points = new ArrayList<Point>();
+        for (LongLat longlat : paths) {
+            Point point = Point.fromLngLat(longlat.longitude, longlat.latitude);
+            points.add(point);
+        }
+        LineString path = LineString.fromLngLats(points);
+        Feature pathFeature = Feature.fromGeometry(path);
+        FeatureCollection pathFeatureCollection = FeatureCollection.fromFeature(pathFeature);
+        try {
+            Date date = dateDF.parse(dateString);
+            String year_ = String.format("%tY", date);
+            String month_ = String.format("%tm", date);
+            String date_ = String.format("%td", date);
+            BufferedWriter bf = new BufferedWriter(new FileWriter("drone-" + date_ + "-" + month_ + "-" + year_));
+            bf.write(pathFeatureCollection.toJson());
+            bf.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 }
