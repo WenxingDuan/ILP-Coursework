@@ -10,8 +10,8 @@ public class PathBuilder {
     private LongLatCatcher longLatCatcher;
     private DatabaseController databaseController;
     private GeoController geoController;
-    private List<LongLat> landmarks;
-    private List<List<LongLat>> noFlyLongLat;
+    private final List<LongLat> landmarks;
+    private final List<List<LongLat>> noFlyLongLat;
 
     class Move {
         int batteryCost;
@@ -25,6 +25,17 @@ public class PathBuilder {
         }
     }
 
+    class OrderDestination {
+        String orderNumber;
+        List<LongLat> destinations;
+
+        OrderDestination(String orderNumber, List<LongLat> destinations) {
+            this.orderNumber = orderNumber;
+            this.destinations = destinations;
+        }
+
+    }
+
     public PathBuilder(String webPort, String dbPort) {
         this.longLatCatcher = new LongLatCatcher(webPort);
         this.databaseController = new DatabaseController(dbPort);
@@ -34,15 +45,15 @@ public class PathBuilder {
         this.noFlyLongLat = this.geoController.getNoFlyLongLat();
     }
 
-    public List<LongLat> generatePath(String date) {
+    public List<OrderDestination> generatePath(String date) {
         int battery = 1500;
-        List<LongLat> path;
+        List<OrderDestination> path;
 
         List<OrderDetail> orders = databaseController.orderSearch(date);
         // System.out.println();
         // orders.get(0).printInformation();
 
-        List<List<LongLat>> destinationList = getDestination(orders);
+        List<OrderDestination> destinationList = getDestination(orders);
         path = findDeliverPath(battery, destinationList);
 
         return path;
@@ -50,76 +61,72 @@ public class PathBuilder {
 
     // ================================================================================================
 
-    private List<LongLat> findDeliverPath(int battery, List<List<LongLat>> destinationList) {
-        List<LongLat> path = new ArrayList<LongLat>();
-        path.add(appletonTower);
+    private List<OrderDestination> findDeliverPath(int battery, List<OrderDestination> destinationList) {
+        List<OrderDestination> path = new ArrayList<OrderDestination>();
+        // path.add(appletonTower);
         LongLat currentPosition = appletonTower;
-        for (List<LongLat> orderDestination : destinationList) {
-            currentPosition = path.get(path.size() - 1);
+        for (OrderDestination orderDestination : destinationList) {
             List<LongLat> tempPath = new ArrayList<LongLat>();
 
-            for (LongLat nextDestination : orderDestination) {
-                tempPath.addAll(chooseShortestLandmark(currentPosition, nextDestination));
+            for (LongLat nextDestination : orderDestination.destinations) {
+                if (currentPosition.closeTo(nextDestination))
+                    continue;
+                tempPath.addAll(PathUtiles.organizeShortestPath(currentPosition, nextDestination, this.landmarks,
+                        this.noFlyLongLat));
                 currentPosition = nextDestination;
             }
-            int orderBatteryCost = batteryCalculater(tempPath);
-            int backBatteryCost = batteryCalculater(currentPosition, this.appletonTower);
+            tempPath = removeSameLongLat(tempPath);
+            int orderBatteryCost = PathUtiles.batteryCalculater(tempPath);
+            int backBatteryCost = PathUtiles.batteryCalculater(currentPosition, this.appletonTower);
 
             if (battery - (orderBatteryCost + backBatteryCost) > 0) {
                 battery = battery - orderBatteryCost;
-                path.addAll(tempPath);
+                // tempPath.remove(0);
+                path.add(new OrderDestination(orderDestination.orderNumber, tempPath));
             } else {
-                path.addAll(chooseShortestLandmark(currentPosition, this.appletonTower));
+                OrderDestination lastOrderDestination = path.get(path.size() - 1);
+                List<LongLat> lastDestinations = lastOrderDestination.destinations;
+                currentPosition = lastDestinations.get(lastDestinations.size() - 1);
+                tempPath = PathUtiles.organizeShortestPath(currentPosition, this.appletonTower, this.landmarks,
+                        this.noFlyLongLat);
+                // tempPath.remove(0);
+                // System.out.println("==========================");
+                path.add(new OrderDestination(orderDestination.orderNumber, tempPath));
                 break;
             }
+            OrderDestination lastOrderDestination = path.get(path.size() - 1);
+            List<LongLat> lastDestinations = lastOrderDestination.destinations;
+            currentPosition = lastDestinations.get(lastDestinations.size() - 1);
+
         }
-        if (!path.get(path.size() - 1).closeTo(this.appletonTower))
-            path.addAll(chooseShortestLandmark(currentPosition, this.appletonTower));
+
+        // OrderDestination lastOrderDestination = path.get(path.size() - 1);
+        // List<LongLat> lastDestinations = lastOrderDestination.destinations;
+        // currentPosition = lastDestinations.get(lastDestinations.size() - 1);
+
+        // String orderNumber = path.get(path.size() - 1).orderNumber;
+        String orderNumber = "00000000";
+        if (!currentPosition.closeTo(this.appletonTower)) {
+            List<LongLat> tempPath = PathUtiles.organizeShortestPath(currentPosition, this.appletonTower,
+                    this.landmarks, this.noFlyLongLat);
+            // tempPath.remove(0);
+            path.add(new OrderDestination(orderNumber, tempPath));
+
+        }
 
         return path;
     }
 
-    private List<LongLat> chooseShortestLandmark(LongLat start, LongLat end) {
-        List<List<LongLat>> multiplePaths = new ArrayList<List<LongLat>>();
-        List<LongLat> directPath = PathOrganizer.organizePath(start, end, 10, this.noFlyLongLat);
-        if (directPath != null)
-            multiplePaths.add(directPath);
-        for (LongLat landmark : this.landmarks) {
-            List<LongLat> currPath = PathOrganizer.organizePathThoughLandmark(start, landmark, end, this.noFlyLongLat);
-            if (currPath != null)
-                multiplePaths.add(currPath);
+    private List<LongLat> removeSameLongLat(List<LongLat> longLatList) {
+        for (int i = 0; i < longLatList.size() - 1; i++) {
+            if (longLatList.get(i).closeTo(longLatList.get(i + 1)))
+                longLatList.remove(i + 1);
         }
-        return chooseShortestPath(multiplePaths);
-    }
-
-    private List<LongLat> chooseShortestPath(List<List<LongLat>> pathOptions) {
-        int shortestOrderIndex = 0;
-        int shortestCost = batteryCalculater(pathOptions.get(0));
-        for (int i = 0; i < pathOptions.size(); i++) {
-            if (batteryCalculater(pathOptions.get(i)) < shortestCost) {
-                shortestOrderIndex = i;
-                shortestCost = batteryCalculater(pathOptions.get(i));
-            }
-        }
-        return pathOptions.get(shortestOrderIndex);
-    }
-
-    private int batteryCalculater(List<LongLat> path) {
-        int cost = 0;
-        for (int i = 0; i < path.size() - 1; i++) {
-            cost = cost + batteryCalculater(path.get(i), path.get(i + 1));
-        }
-        return cost;
-    }
-
-    private int batteryCalculater(LongLat start, LongLat end) {
-        int cost = (int) Math.floor(start.distanceTo(end) / 0.00015);
-        return cost;
-
+        return longLatList;
     }
 
     private Move movementCalculater(LongLat start, LongLat end) {
-        int angle = PathOrganizer.degreeTwoPoints(start, end);
+        int angle = PathUtiles.degreeTwoPoints(start, end);
         int step = 0;
         while (!start.closeTo(end)) {
             step++;
@@ -131,11 +138,10 @@ public class PathBuilder {
     private List<OrderDetail> sortByValue(List<OrderDetail> orders) {
         List<OrderDetail> sortedOrders = new ArrayList<OrderDetail>();
         // orders.get(0).printInformation();
-        System.out.println(orders.isEmpty());
 
         while (true) {
-            System.out.println(orders.size());
-            orders.get(0).printInformation();
+            // System.out.println(orders.size());
+            // orders.get(0).printInformation();
 
             int highestOrderIndex = 0;
             int highestCost = 0;
@@ -154,15 +160,16 @@ public class PathBuilder {
         return sortedOrders;
     }
 
-    private List<List<LongLat>> getDestination(List<OrderDetail> orders) {
+    private List<OrderDestination> getDestination(List<OrderDetail> orders) {
         // orders.get(0).printInformation();
         // System.out.println("11111111111111111");
-        List<List<LongLat>> destinationList = new ArrayList<List<LongLat>>();
+        List<OrderDestination> destinationList = new ArrayList<OrderDestination>();
         List<OrderDetail> ordersItem = sortByValue(orders);
         ordersItem = sortByValue(ordersItem);
+
         for (OrderDetail orderDetail : ordersItem) {
             List<LongLat> currOrderDestination = getOrderDestination(orderDetail);
-            destinationList.add(currOrderDestination);
+            destinationList.add(new OrderDestination(orderDetail.orderNumber, currOrderDestination));
         }
         return destinationList;
     }
