@@ -27,6 +27,8 @@ public class PathUtiles {
     }
 
     public static boolean canFly(LongLat start, LongLat end, List<List<LongLat>> noFlyLongLat) {
+        // if (start.closeTo(end))
+        // return false;
         for (List<LongLat> currZonePoints : noFlyLongLat) {
             for (int i = 0; i < currZonePoints.size() - 1; i++) {
                 LongLat currLinePoint1 = currZonePoints.get(i);
@@ -123,7 +125,8 @@ public class PathUtiles {
         return null;
     }
 
-    public static List<LongLat> organizeShortestPath(LongLat start, LongLat end, List<LongLat> landmarks, List<List<LongLat>> noFlyLongLat) {
+    public static List<LongLat> organizeShortestPath(LongLat start, LongLat end, List<LongLat> landmarks,
+            List<List<LongLat>> noFlyLongLat) {
         List<List<LongLat>> allPaths = new ArrayList<List<LongLat>>();
 
         List<List<LongLat>> directPath = findAllPaths(start, end, noFlyLongLat);
@@ -212,6 +215,22 @@ public class PathUtiles {
         int cost = (int) Math.floor(start.distanceTo(end) / 0.00015);
         return cost;
 
+    }
+
+    public static List<LongLat> removeSameLongLat(List<LongLat> longLatList) {
+        // for (int i = 0; i < longLatList.size() - 1; i++) {
+        // if (longLatList.get(i).closeTo(longLatList.get(i + 1)))
+        // longLatList.remove(i + 1);
+        // }
+
+        for (int i = 0; i < longLatList.size() - 1; i++) {
+
+            for (int j = i + 1; j < longLatList.size(); j++) {
+                if (longLatList.get(i).closeTo(longLatList.get(j)))
+                    longLatList.remove(j);
+            }
+        }
+        return longLatList;
     }
 
 }

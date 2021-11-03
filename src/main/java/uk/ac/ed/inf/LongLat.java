@@ -74,6 +74,11 @@ public class LongLat {
             LongLat newLocation = new LongLat(newLongitude, newLatitude);
             return newLocation;
         }
+    }
+
+    public boolean samePoint(LongLat other) {
+        return (Double.doubleToLongBits(this.longitude) == Double.doubleToLongBits(other.longitude))
+                && (Double.doubleToLongBits(this.latitude) == Double.doubleToLongBits(other.latitude));
 
     }
 }

@@ -40,9 +40,7 @@ public class LongLatCatcher {
         this.port = port;
         this.address = "http://localhost:" + port;
 
-
     }
-
 
     public LongLat getCenterLongLat(String words) {
         String manuString = Client.get(linkBuilder(words));

@@ -83,7 +83,7 @@ public class GeoController {
             String year_ = String.format("%tY", date);
             String month_ = String.format("%tm", date);
             String date_ = String.format("%td", date);
-            BufferedWriter bf = new BufferedWriter(new FileWriter("drone-" + date_ + "-" + month_ + "-" + year_));
+            BufferedWriter bf = new BufferedWriter(new FileWriter("drone-" + date_ + "-" + month_ + "-" + year_+".geojson"));
             bf.write(pathFeatureCollection.toJson());
             bf.close();
         } catch (Exception e) {
