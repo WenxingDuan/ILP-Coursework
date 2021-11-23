@@ -82,7 +82,6 @@ public class MenuUtiles {
         int price = 50;
         for (String itemName : itemList) {
             for (Item currItem : items) {
-
                 if (itemName.equals(currItem.item)) {
                     price = price + currItem.pence;
                     break;

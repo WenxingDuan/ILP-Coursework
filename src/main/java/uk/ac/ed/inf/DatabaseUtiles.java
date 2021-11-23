@@ -30,15 +30,20 @@ public class DatabaseUtiles {
             this.jdbcString = "jdbc:derby://localhost:" + port + "/derbyDB";
             this.conn = DriverManager.getConnection(jdbcString);
             this.statement = conn.createStatement();
-
-            statement.execute("drop table deliveries");
-            statement.execute("drop table flightpath");
-
-            String deliverCommand = "create table deliveries(orderNo char(8), deliveredTo varchar(19), costInPence int)";
-            String pathCommand = "create table flightpath(orderNo char(8), fromLongitude double, fromLatitude double, angle integer, toLongitude double, toLatitude double)";
-
-            statement.execute(deliverCommand);
-            statement.execute(pathCommand);
+            try {
+                statement.execute("drop table deliveries");
+                statement.execute("drop table flightpath");
+                String deliverCommand = "create table deliveries(orderNo char(8), deliveredTo varchar(19), costInPence int)";
+                String pathCommand = "create table flightpath(orderNo char(8), fromLongitude double, fromLatitude double, angle integer, toLongitude double, toLatitude double)";
+                statement.execute(deliverCommand);
+                statement.execute(pathCommand);
+            } catch (Exception e)
+            {
+                String deliverCommand = "create table deliveries(orderNo char(8), deliveredTo varchar(19), costInPence int)";
+                String pathCommand = "create table flightpath(orderNo char(8), fromLongitude double, fromLatitude double, angle integer, toLongitude double, toLatitude double)";
+                statement.execute(deliverCommand);
+                statement.execute(pathCommand);
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
