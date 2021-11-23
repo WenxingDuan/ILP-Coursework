@@ -2,7 +2,7 @@ uk\ac\ed\inf\PathBuilder$OrderDestination.class
 uk\ac\ed\inf\DatabaseController.class
 uk\ac\ed\inf\LongLatCatcher$LngLat.class
 uk\ac\ed\inf\LongLatCatcher$1.class
-uk\ac\ed\inf\MenuController$Manu.class
+uk\ac\ed\inf\MenuController$Menu.class
 uk\ac\ed\inf\PathBuilder$Move.class
 uk\ac\ed\inf\LongLatCatcher$LongLatDetail.class
 uk\ac\ed\inf\MenuController.class
@@ -15,5 +15,5 @@ uk\ac\ed\inf\LongLatCatcher.class
 uk\ac\ed\inf\GeoController.class
 uk\ac\ed\inf\MenuController$Item.class
 uk\ac\ed\inf\OrderDetail.class
-uk\ac\ed\inf\PathUtiles.class
+uk\ac\ed\inf\PathUtils.class
 uk\ac\ed\inf\LongLat.class

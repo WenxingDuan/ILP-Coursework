@@ -16,7 +16,7 @@ public class OrderDetail {
     public List<String> items;
 
     /**
-     * Constructer of OrderDetail class.
+     * Constructor of OrderDetail class.
      *
      * @param orderNumber  the order number of the order
      * @param deliveryDate the delivery date of the order

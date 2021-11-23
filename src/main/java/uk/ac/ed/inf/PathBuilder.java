@@ -12,15 +12,15 @@ import java.util.ArrayList;
 public class PathBuilder {
     private final LongLat appletonTower = new LongLat(-3.186874, 55.944494);
 
-    private MenuUtiles menuUtiles;
+    private MenuUtils menuUtils;
     private LongLatCatcher longLatCatcher;
-    private DatabaseUtiles databaseUtiles;
-    private GeoJsonUtiles geoJsonUtiles;
+    private DatabaseUtils databaseUtils;
+    private GeoJsonUtils geoJsonUtils;
     private final List<LongLat> landmarks;
     private final List<List<LongLat>> noFlyLongLat;
 
     /**
-     * The class stores a single stright movement.
+     * The class stores a single straight movement.
      */
     class Move {
         int batteryCost;
@@ -28,7 +28,7 @@ public class PathBuilder {
         LongLat endLocation;
 
         /**
-         * Constructer of Move class
+         * Constructor of Move class
          * 
          * @param batteryCost the battery cost of this movement
          * @param angle       the angle of this movement
@@ -42,7 +42,7 @@ public class PathBuilder {
     }
 
     /**
-     * The class stores the detail of a order used to write into deliveries table.
+     * The class stores the detail of an order used to write into deliveries table.
      */
     class OrderDestination {
         String orderNumber;
@@ -51,7 +51,7 @@ public class PathBuilder {
         String deliverTo;
 
         /**
-         * Constructer of OrderDestination class.
+         * Constructor of OrderDestination class.
          * 
          * @param orderNumber  the order number of this order
          * @param destinations the fly path of the order
@@ -68,18 +68,18 @@ public class PathBuilder {
     }
 
     /**
-     * Constructer of PathBuilder class.
+     * Constructor of PathBuilder class.
      * 
      * @param webPort the communication web port to the server
      * @param dbPort  the communication derbyDB port to the server
      */
     public PathBuilder(String webPort, String dbPort) {
         this.longLatCatcher = new LongLatCatcher(webPort);
-        this.databaseUtiles = new DatabaseUtiles(dbPort);
-        this.menuUtiles = new MenuUtiles(webPort);
-        this.geoJsonUtiles = new GeoJsonUtiles(webPort);
-        this.landmarks = this.geoJsonUtiles.getLandmarksLongLat();
-        this.noFlyLongLat = this.geoJsonUtiles.getNoFlyLongLat();
+        this.databaseUtils = new DatabaseUtils(dbPort);
+        this.menuUtils = new MenuUtils(webPort);
+        this.geoJsonUtils = new GeoJsonUtils(webPort);
+        this.landmarks = this.geoJsonUtils.getLandmarksLongLat();
+        this.noFlyLongLat = this.geoJsonUtils.getNoFlyLongLat();
     }
 
     /**
@@ -90,16 +90,16 @@ public class PathBuilder {
      * @param date the date to build the path for
      */
     public void buildPath(String date) {
-        // get the order details and complete path without conserning the step length
+        // get the order details and complete path without concerning the step length
         // and battery for the day
         List<OrderDestination> finalPath = generatePath(date);
         List<LongLat> percisePath;
         // write the order details into deliveries table
         writeDeliveriesTable(finalPath);
-        // find the path conserning the step limit of 0.00015 unit
+        // find the path when concerning the step limit of 0.00015 unit
         percisePath = writeFlightpathTable(finalPath);
         // write the path details into flightpath table
-        geoJsonUtiles.storeFlightPath(percisePath, date);
+        geoJsonUtils.storeFlightPath(percisePath, date);
 
     }
 
@@ -107,17 +107,17 @@ public class PathBuilder {
 
     /**
      * Method to get the orders details and generate complete path without
-     * conserning the step length for the input date
+     * concerning the step length for the input date
      * 
      * @param date the date to be used
      * 
-     * @return the order details and path for every order in type of
-     *         {@link List<OrderDestination>}
+     * @return the order details and path for every order in type of list of
+     *         {@link OrderDestination}
      */
     private List<OrderDestination> generatePath(String date) {
         int battery = 1500;
         // find the order information from database
-        List<OrderDetail> orders = databaseUtiles.orderSearch(date);
+        List<OrderDetail> orders = databaseUtils.orderSearch(date);
         // extract the all destinations of all the order in the day
         List<OrderDestination> destinationList = getDestination(orders);
         // organize the path when concern the angle limit but not when concern the step
@@ -135,7 +135,7 @@ public class PathBuilder {
         for (OrderDestination orderDestination : finalPath) {
             // ignore the final retuning to appleton tower process
             if (!orderDestination.orderNumber.equals("00000000")) {
-                databaseUtiles.writeDeliver(orderDestination.orderNumber, orderDestination.deliverTo,
+                databaseUtils.writeDeliver(orderDestination.orderNumber, orderDestination.deliverTo,
                         orderDestination.cost);
             }
         }
@@ -150,13 +150,11 @@ public class PathBuilder {
      *                  limit
      * 
      * @return the precise path when concern both step length limit and angle limit
-     *         in type of {@link List<LongLat>}
+     *         in type of list of {@link LongLat}
      */
     private List<LongLat> writeFlightpathTable(List<OrderDestination> finalPath) {
         List<LongLat> precisePath = new ArrayList<LongLat>();
         precisePath.add(this.appletonTower);
-        System.out.println("[" + this.appletonTower.longitude + "," + this.appletonTower.latitude + "],");
-
         LongLat currentPosition = finalPath.get(0).destinations.get(0);
         // go over all orders
         for (int i = 0; i < finalPath.size(); i++) {
@@ -167,25 +165,24 @@ public class PathBuilder {
                 LongLat nextPosition = finalPath.get(i).destinations.get(j + 1);
                 LongLat planingCurrPosition = finalPath.get(i).destinations.get(j);
                 // check if the drone need to hovering
-                Move samePoint = movementCalculater(planingCurrPosition, nextPosition);
+                Move samePoint = movementCalculator(planingCurrPosition, nextPosition);
                 if (samePoint.angle == -999) {
                     // write the movement information into flightpath table
-                    databaseUtiles.writePath(orderDestination.orderNumber, currentPosition.longitude,
+                    databaseUtils.writePath(orderDestination.orderNumber, currentPosition.longitude,
                             currentPosition.latitude, -999, currentPosition.longitude, currentPosition.latitude);
                     precisePath.add(currentPosition);
                 } else {
                     // write the movement information into flightpath table
-                    Move move = movementCalculater(currentPosition, nextPosition);
-                    databaseUtiles.writePath(orderDestination.orderNumber, currentPosition.longitude,
+                    Move move = movementCalculator(currentPosition, nextPosition);
+                    databaseUtils.writePath(orderDestination.orderNumber, currentPosition.longitude,
                             currentPosition.latitude, move.angle, move.endLocation.longitude,
                             move.endLocation.latitude);
                     currentPosition = move.endLocation;
                     precisePath.add(currentPosition);
-                    System.out.println("[" + currentPosition.longitude + "," + currentPosition.latitude + "],");
-
+                    
                     // dealing with the last order before returning to Appleton Tower
                     if ((j + 1 == orderDestination.destinations.size() - 1) && (i != finalPath.size() - 1)) {
-                        databaseUtiles.writePath(orderDestination.orderNumber, currentPosition.longitude,
+                        databaseUtils.writePath(orderDestination.orderNumber, currentPosition.longitude,
                                 currentPosition.latitude, -999, currentPosition.longitude, currentPosition.latitude);
                         precisePath.add(currentPosition);
                         currentPosition = move.endLocation;
@@ -202,12 +199,12 @@ public class PathBuilder {
      * Method to find a path for the input order, when concern the battery and angle
      * limit, but not when concern the step length limit.
      * 
-     * @param battery         total battert available
+     * @param battery         total battery available
      * @param destinationList the list store all the necessary waypoint for all
      *                        orders
      * 
      * @return the list contain precise path when concern battery and angle limit
-     *         for every order in type of {@link List<OrderDestination>}
+     *         for every order in type of list of {@link OrderDestination}
      */
     private List<OrderDestination> findDeliverPath(int battery, List<OrderDestination> destinationList) {
         List<OrderDestination> path = new ArrayList<OrderDestination>();
@@ -221,14 +218,14 @@ public class PathBuilder {
                 if (currentPosition.closeTo(nextDestination))
                     continue;
                 // find the path between two waypoints
-                tempPath.addAll(PathUtiles.organizeShortestPath(currentPosition, nextDestination, this.landmarks,
+                tempPath.addAll(PathUtils.organizeShortestPath(currentPosition, nextDestination, this.landmarks,
                         this.noFlyLongLat));
                 currentPosition = nextDestination;
             }
 
             // check if the drone have enough battery to finish the current order and return
-            int orderBatteryCost = PathUtiles.batteryCalculater(tempPath) + hoverBatteryCost;
-            int backBatteryCost = PathUtiles.batteryCalculater(currentPosition, this.appletonTower);
+            int orderBatteryCost = PathUtils.batteryCalculator(tempPath) + hoverBatteryCost;
+            int backBatteryCost = PathUtils.batteryCalculator(currentPosition, this.appletonTower);
             // if battery is enough, add to the returning path
             if (battery - (orderBatteryCost + backBatteryCost) > 0) {
                 battery = battery - orderBatteryCost;
@@ -241,7 +238,7 @@ public class PathBuilder {
                 OrderDestination lastOrderDestination = path.get(path.size() - 1);
                 List<LongLat> lastDestinations = lastOrderDestination.destinations;
                 currentPosition = lastDestinations.get(lastDestinations.size() - 1);
-                tempPath = PathUtiles.organizeShortestPath(currentPosition, this.appletonTower, this.landmarks,
+                tempPath = PathUtils.organizeShortestPath(currentPosition, this.appletonTower, this.landmarks,
                         this.noFlyLongLat);
                 currentPosition = tempPath.get(tempPath.size() - 1);
                 path.add(new OrderDestination("00000000", tempPath, 0, ""));
@@ -255,8 +252,8 @@ public class PathBuilder {
         // returning to Appleton Tower and set order number to 00000000
         String orderNumber = "00000000";
         if (!currentPosition.closeTo(this.appletonTower)) {
-            List<LongLat> tempPath = PathUtiles.organizeShortestPath(currentPosition, this.appletonTower,
-                    this.landmarks, this.noFlyLongLat);
+            List<LongLat> tempPath = PathUtils.organizeShortestPath(currentPosition, this.appletonTower, this.landmarks,
+                    this.noFlyLongLat);
             path.add(new OrderDestination(orderNumber, tempPath, 0, ""));
         }
         return path;
@@ -272,11 +269,11 @@ public class PathBuilder {
      * @return the object contain battery cost and precise location in type of
      *         {@link Move}
      */
-    private Move movementCalculater(LongLat start, LongLat end) {
+    private Move movementCalculator(LongLat start, LongLat end) {
         if (start.samePoint(end))
             return new Move(0, -999, start);
         // calculate the angle
-        int angle = PathUtiles.degreeTwoPoints(start, end);
+        int angle = PathUtils.degreeTwoPoints(start, end);
         double angleDigit = (double) angle;
         angleDigit = angleDigit / 10;
         angleDigit = Math.round(angleDigit) * 10;
@@ -307,9 +304,9 @@ public class PathBuilder {
             int highestOrderIndex = 0;
             int highestCost = 0;
             for (int i = 0; i < orders.size(); i++) {
-                if (menuUtiles.getDeliveryCost(orders.get(i).items) > highestCost) {
+                if (menuUtils.getDeliveryCost(orders.get(i).items) > highestCost) {
                     highestOrderIndex = i;
-                    highestCost = menuUtiles.getDeliveryCost(orders.get(i).items);
+                    highestCost = menuUtils.getDeliveryCost(orders.get(i).items);
                 }
             }
             sortedOrders.add(orders.get(highestOrderIndex));
@@ -336,7 +333,7 @@ public class PathBuilder {
         for (OrderDetail orderDetail : ordersItem) {
             List<LongLat> currOrderDestination = getOrderDestination(orderDetail);
             destinationList.add(new OrderDestination(orderDetail.orderNumber, currOrderDestination,
-                    menuUtiles.getDeliveryCost(orderDetail.items), orderDetail.deliverTo));
+                    menuUtils.getDeliveryCost(orderDetail.items), orderDetail.deliverTo));
         }
         return destinationList;
     }
@@ -353,11 +350,11 @@ public class PathBuilder {
         List<LongLat> orderDestination = new ArrayList<LongLat>();
         List<String> items = order.items;
         for (String item : items) {
-            String location = menuUtiles.getLocation(item);
+            String location = menuUtils.getLocation(item);
             LongLat storeLongLat = longLatCatcher.getCenterLongLat(location);
             orderDestination.add(storeLongLat);
         }
-        orderDestination = PathUtiles.removeSameLongLat(orderDestination);
+        orderDestination = PathUtils.removeSameLongLat(orderDestination);
         LongLat deliverTo = longLatCatcher.getCenterLongLat(order.deliverTo);
         orderDestination.add(deliverTo);
         return orderDestination;

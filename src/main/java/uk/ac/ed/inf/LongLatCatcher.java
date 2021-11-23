@@ -45,7 +45,7 @@ public class LongLatCatcher {
     }
 
     /**
-     * Constructer of LongLatCatcher class. In the method, function create the
+     * Constructor of LongLatCatcher class. In the method, function create the
      * address string.
      * 
      * @param port the communication web port to the server
@@ -65,15 +65,15 @@ public class LongLatCatcher {
      *         {@link LongLat}
      */
     public LongLat getCenterLongLat(String words) {
-        String manuString = ServerUtiles.get(linkBuilder(words));
-        LongLatDetail detail = buildLongLatDetail(manuString);
+        String menuString = ServerUtils.get(linkBuilder(words));
+        LongLatDetail detail = buildLongLatDetail(menuString);
         LongLat longLatDetail = new LongLat(detail.coordinates.lng, detail.coordinates.lat);
         return longLatDetail;
     }
 
     /**
      * Method to transform the input WhatThreeWords into the link of its location
-     * detials json
+     * details json
      * 
      * @param words the WhatThreeWords location
      * @return the web link to the WhatThreeWords json

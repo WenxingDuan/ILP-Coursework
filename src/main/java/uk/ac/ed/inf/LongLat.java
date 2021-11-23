@@ -11,7 +11,7 @@ public class LongLat {
     public double latitude;
 
     /**
-     * Constructer of LongLat class.
+     * Constructor of LongLat class.
      * 
      * @param longitude the longitude
      * @param latitude  the latitude
@@ -47,10 +47,10 @@ public class LongLat {
     }
 
     /**
-     * Method to check if the distance of input location is within 0.00015 degreee
+     * Method to check if the distance of input location is within 0.00015 degree
      * 
      * @param location the location to be checked
-     * @return True if the distance between two location is within 0.00015 degreee
+     * @return True if the distance between two location is within 0.00015 degree
      *         False otherwise
      */
     public boolean closeTo(LongLat location) {
@@ -59,7 +59,7 @@ public class LongLat {
 
     /**
      * Method to calculate the location after moving 0.00015 degree in the direction
-     * of the inpit degree
+     * of the input degree
      * 
      * @param degree the direction in degree of the next step
      * @return the location after moving
@@ -80,7 +80,7 @@ public class LongLat {
      * Method to check if the input location is exactly same with the current
      * location
      * 
-     * @param other the location to be check
+     * @param other the location to be checked
      * @return true if the input location is exactly same with the current location,
      *         false otherwise
      */
