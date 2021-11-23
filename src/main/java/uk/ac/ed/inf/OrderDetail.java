@@ -1,5 +1,5 @@
 /**
- * Class for strore detail for each order
+ * Class for strore detail for each order. Used for easy communication between classes.
  *
  * @author Duan Wenxing
  */
@@ -15,6 +15,15 @@ public class OrderDetail {
     public String deliverTo;
     public List<String> items;
 
+    /**
+     * Constructer of OrderDetail class.
+     *
+     * @param orderNumber  the order number of the order
+     * @param deliveryDate the delivery date of the order
+     * @param customer     the customer school ID of the order
+     * @param deliverTo    the destination WhatThreeWords location of the order
+     * @param items        the ordered items of the order
+     */
     public OrderDetail(String orderNumber, String deliveryDate, String customer, String deliverTo, List<String> items) {
         this.orderNumber = orderNumber;
         this.deliveryDate = deliveryDate;
@@ -23,6 +32,10 @@ public class OrderDetail {
         this.items = items;
     }
 
+    /**
+     * Method to print the order details for testing.
+     *
+     */
     public void printInformation() {
         System.out.println(orderNumber);
         System.out.println(deliveryDate);
@@ -30,7 +43,5 @@ public class OrderDetail {
         System.out.println(deliverTo);
         System.out.println(String.join(",", items));
     }
-
-    
 
 }

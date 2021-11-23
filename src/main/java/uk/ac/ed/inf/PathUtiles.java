@@ -27,8 +27,6 @@ public class PathUtiles {
     }
 
     public static boolean canFly(LongLat start, LongLat end, List<List<LongLat>> noFlyLongLat) {
-        // if (start.closeTo(end))
-        // return false;
         for (List<LongLat> currZonePoints : noFlyLongLat) {
             for (int i = 0; i < currZonePoints.size() - 1; i++) {
                 LongLat currLinePoint1 = currZonePoints.get(i);
@@ -83,8 +81,7 @@ public class PathUtiles {
             degree = degree + 180.0;
         if (degree < 0)
             degree = degree + 360.0;
-        // System.out.println(alpha);
-
+            
         double distance = start.distanceTo(end);
         double upperBound = upperDegree(degree) - 10 + upperSlope;
         double lowerBound = lowerDegree(degree) + 10 - lowerSlope;
@@ -117,10 +114,6 @@ public class PathUtiles {
             pathLongLats.add(end);
             return pathLongLats;
         }
-
-        // pathLongLats.add(lowerPoint);
-        // pathLongLats.add(end);
-        // return pathLongLats;
 
         return null;
     }
@@ -218,13 +211,8 @@ public class PathUtiles {
     }
 
     public static List<LongLat> removeSameLongLat(List<LongLat> longLatList) {
-        // for (int i = 0; i < longLatList.size() - 1; i++) {
-        // if (longLatList.get(i).closeTo(longLatList.get(i + 1)))
-        // longLatList.remove(i + 1);
-        // }
 
         for (int i = 0; i < longLatList.size() - 1; i++) {
-
             for (int j = i + 1; j < longLatList.size(); j++) {
                 if (longLatList.get(i).closeTo(longLatList.get(j)))
                     longLatList.remove(j);

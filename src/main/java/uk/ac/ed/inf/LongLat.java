@@ -76,6 +76,14 @@ public class LongLat {
         }
     }
 
+    /**
+     * Method to check if the input location is exactly same with the current
+     * location
+     * 
+     * @param other the location to be check
+     * @return true if the input location is exactly same with the current location,
+     *         false otherwise
+     */
     public boolean samePoint(LongLat other) {
         return (Double.doubleToLongBits(this.longitude) == Double.doubleToLongBits(other.longitude))
                 && (Double.doubleToLongBits(this.latitude) == Double.doubleToLongBits(other.latitude));

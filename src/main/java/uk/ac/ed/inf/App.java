@@ -1,5 +1,5 @@
 /**
- * Enpty class
+ * Main class
  *
  * @author Duan Wenxing
  */
@@ -19,7 +19,7 @@ public class App {
         // p.buildPath(year + "-" + month + "-" + date);
 
         PathBuilder p = new PathBuilder("9898", "1527");
-        p.buildPath("2022-05-01");
+        p.buildPath("2023-12-31");
     }
 
 }
