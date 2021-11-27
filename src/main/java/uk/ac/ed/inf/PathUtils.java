@@ -85,7 +85,7 @@ public class PathUtils {
      * point to ending point by offset the slope of both start and end points by a
      * same increasing degree to form a triangle which meet the condition of the
      * degree with multiple of 10 and not pass the no-fly zones. Math details can be
-     * found if Design Document 100.100.100
+     * found if Design Document 2.2.2
      * 
      * @param start        the starting position
      * @param end          the ending position
@@ -116,26 +116,26 @@ public class PathUtils {
      * Method to use to calculate the path from starting point to ending point by
      * offset the slope of both start and end points by different degree to form a
      * triangle which meet the condition of the degree with multiple of 10. Math
-     * details can be found if Design Document 100.100.100
+     * details can be found if Design Document 2.2.2
      * 
      * @param start        the starting position
      * @param end          the ending position
-     * @param upperSlope   the degree to be offset in the counterclockwise direction
+     * @param upperOffset  the degree to be offset in the counterclockwise direction
      *                     on starting point / the degree to be offset in the
      *                     clockwise direction on ending point
-     * @param lowerSlope   the degree to be offset in the clockwise direction on
+     * @param lowerOffset  the degree to be offset in the clockwise direction on
      *                     starting point / the degree to be offset in the
      *                     counterclockwise direction on ending point
      * @param noFlyLongLat the list of the no-fly zones edgepoints
      * 
      * @return key points list on the available path, null if it is not reachable.
      */
-    public static List<LongLat> advanceOrganizePath(LongLat start, LongLat end, double upperSlope, double lowerSlope,
+    public static List<LongLat> advanceOrganizePath(LongLat start, LongLat end, double upperOffset, double lowerOffset,
             List<List<LongLat>> noFlyLongLat) {
         List<LongLat> pathLongLats = new ArrayList<LongLat>();
         pathLongLats.add(start);
         // calculate the angle on the middle point between start and end
-        double alpha = 180.0 + 10 - upperSlope - lowerSlope;
+        double alpha = 180.0 + 10 - upperOffset - lowerOffset;
         // if offset degree cannot form a triangle, return null
         if (alpha <= 0)
             return null;
@@ -160,13 +160,13 @@ public class PathUtils {
         //
         // when offsetting counterclockwise, upperBound is also the degree on the end
         // point in the triangle formed by start, middle and end
-        double upperBound = upperDegree(degree) - 10 + upperSlope;
+        double upperBound = upperDegree(degree) - 10 + upperOffset;
         // calculate the angle of the starting point after offset in the
         // clockwise direction
         //
         // when offsetting clockwise, lowerBound is also the degree on the end
         // point in the triangle formed by start, middle and end
-        double lowerBound = lowerDegree(degree) + 10 - lowerSlope;
+        double lowerBound = lowerDegree(degree) + 10 - lowerOffset;
 
         // calculate the length of the triangle formed by start, middle and end
         double upperSideLen = distance / Math.sin(Math.toRadians(alpha))
@@ -193,6 +193,7 @@ public class PathUtils {
         if (upperCanFly) {
             pathLongLats.add(upperPoint);
             pathLongLats.add(end);
+
             return pathLongLats;
         }
         if (lowerCanFly) {
@@ -246,9 +247,9 @@ public class PathUtils {
     public static List<List<LongLat>> findAllPaths(LongLat start, LongLat end, List<List<LongLat>> noFlyLongLat) {
         List<List<LongLat>> allPaths = new ArrayList<List<LongLat>>();
         // try all possible offset angles of the start and end points
-        for (double upperSlope = 0; upperSlope < 180; upperSlope = upperSlope + 10) {
-            for (double lowerSlope = 0; lowerSlope < 180; lowerSlope = lowerSlope + 10) {
-                List<LongLat> currPaths = PathUtils.advanceOrganizePath(start, end, upperSlope, lowerSlope,
+        for (double upperOffset = 10; upperOffset < 180; upperOffset = upperOffset + 10) {
+            for (double lowerOffset = 10; lowerOffset < 180; lowerOffset = lowerOffset + 10) {
+                List<LongLat> currPaths = PathUtils.advanceOrganizePath(start, end, upperOffset, lowerOffset,
                         noFlyLongLat);
                 // only use the safe path
                 if (currPaths != null)
@@ -357,7 +358,7 @@ public class PathUtils {
         for (int i = 0; i < path.size() - 1; i++) {
             cost = cost + batteryCalculator(path.get(i), path.get(i + 1));
         }
-        return cost;
+        return cost + path.size();
     }
 
     /**

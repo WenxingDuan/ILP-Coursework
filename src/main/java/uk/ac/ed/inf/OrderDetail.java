@@ -31,17 +31,4 @@ public class OrderDetail {
         this.deliverTo = deliverTo;
         this.items = items;
     }
-
-    /**
-     * Method to print the order details for testing.
-     *
-     */
-    public void printInformation() {
-        System.out.println(orderNumber);
-        System.out.println(deliveryDate);
-        System.out.println(customer);
-        System.out.println(deliverTo);
-        System.out.println(String.join(",", items));
-    }
-
 }

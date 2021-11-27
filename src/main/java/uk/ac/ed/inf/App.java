@@ -18,8 +18,12 @@ public class App {
         // PathBuilder p = new PathBuilder(webPort, dbPort);
         // p.buildPath(year + "-" + month + "-" + date);
 
-        PathBuilder p = new PathBuilder("9898", "1527");
-        p.buildPath("2023-12-31");
+        // PathBuilder p = new PathBuilder("9898", "1527");
+        // p.buildPath("2022-1-11");
+
+        LongLat a = new LongLat(-3.18848468363285, 55.94529070363015);
+        LongLat b = new LongLat(-3.1884, 55.9454);
+        System.out.println((a.distanceTo(b)));
     }
 
 }
