@@ -14,10 +14,10 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 public class MenuUtils {
-    String port;
-    String address;
-    ArrayList<Menu> menus;
-    ArrayList<Item> items = new ArrayList<Item>();
+    private String port;
+    private String address;
+    private ArrayList<Menu> menus;
+    private ArrayList<Item> items = new ArrayList<Item>();
 
     /**
      * The class stores the name and price of a certain food item.

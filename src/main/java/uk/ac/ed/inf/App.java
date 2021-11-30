@@ -29,13 +29,6 @@ public class App {
         PathBuilder p = new PathBuilder(webPort, dbPort);
         p.buildPath(year + "-" + month + "-" + date);
 
-        // ================================================================
-        // generate required dates
-        // ================================================================
-        // PathBuilder p = new PathBuilder("9898", "1527");
-        // for (int i = 1; i < 13; i++){
-        // p.buildPath("2022" + "-" + i + "-" + i);
-        // }
     }
 
 }

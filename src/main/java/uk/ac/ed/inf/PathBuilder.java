@@ -16,8 +16,8 @@ public class PathBuilder {
     private LongLatCatcher longLatCatcher;
     private DatabaseUtils databaseUtils;
     private GeoJsonUtils geoJsonUtils;
-    public static List<LongLat> landmarks;
-    public static List<List<LongLat>> noFlyLongLat;
+    private List<LongLat> landmarks;
+    private List<List<LongLat>> noFlyLongLat;
 
     /**
      * The class stores a single straight movement.
@@ -106,7 +106,6 @@ public class PathBuilder {
 
     }
 
-    // ================================================================================================
 
     /**
      * Method to get the orders details and generate complete path without
