@@ -16,8 +16,8 @@ public class PathBuilder {
     private LongLatCatcher longLatCatcher;
     private DatabaseUtils databaseUtils;
     private GeoJsonUtils geoJsonUtils;
-    private final List<LongLat> landmarks;
-    private final List<List<LongLat>> noFlyLongLat;
+    public static List<LongLat> landmarks;
+    public static List<List<LongLat>> noFlyLongLat;
 
     /**
      * The class stores a single straight movement.

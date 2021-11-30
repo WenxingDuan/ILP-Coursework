@@ -5,32 +5,114 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.List;
+import java.awt.geom.Line2D;
 
 import static org.junit.Assert.*;
 import org.junit.Test;
-
-import java.util.Random;
 
 public class Apptest {
     private Connection conn;
     private Statement statement;
     String DBport = "1527";
     String Webport = "9898";
+    // ================================================================
+    PathBuilder p = new PathBuilder(Webport, DBport);
+    List<List<LongLat>> noFlyLongLat = PathBuilder.noFlyLongLat;
+    // ================================================================
+    LongLat appletonTower = new LongLat(-3.186874, 55.944494);
 
     @Test
-    public void testDBAngle() {
-        Random r = new Random();
-        int date = r.nextInt(29);
-        int month = r.nextInt(13);
-        int year = r.nextInt(2) + 2022;
+    public void testEverydayEverything() {
+        for (int year = 2022; year <= 2023; year++) {
+            for (int month = 1; month <= 12; month++) {
+                for (int date = 1; date <= 28; date++) {
+                    String[] a = { String.valueOf(date), String.valueOf(month), String.valueOf(year), Webport, DBport };
+                    System.err.println("" + year + " " + month + " " + date + " ");
+                    App.main(a);
 
-        String[] a = { String.valueOf(date), String.valueOf(month), String.valueOf(year), Webport, DBport };
+                    // =============================================
+                    // ================Test Angle===================
+                    // =============================================
+                    System.err.println("Testing Angle Correctness");
+                    try {
+                        testDBAngle();
+                        System.err.println("  --success");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        System.err.println("!!!!!!!!!!!!!!!!!");
+                        System.err.println("  --Unsuccess--  ");
+                        System.err.println("!!!!!!!!!!!!!!!!!");
+                    }
 
-        App.main(a);
+                    // =============================================
+                    // ===============connectness===================
+                    // =============================================
+                    System.err.println("Testing Path Points Connectness");
+                    try {
+                        testPathConnectness();
+                        System.err.println("  --success");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        System.err.println("!!!!!!!!!!!!!!!!!");
+                        System.err.println("  --Unsuccess--  ");
+                        System.err.println("!!!!!!!!!!!!!!!!!");
+                    }
+                    // =============================================
+                    // ===============Start end APT=================
+                    // =============================================
+                    System.err.println("Testing Start End at APT");
+                    try {
+                        testStartingEndingAPT();
+                        System.err.println("  --success");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        System.err.println("!!!!!!!!!!!!!!!!!");
+                        System.err.println("  --Unsuccess--  ");
+                        System.err.println("!!!!!!!!!!!!!!!!!");
+                    }
+                    // =============================================
+                    // =================== Battery =================
+                    // =============================================
+                    System.err.println("Testing Battery Enough");
+                    try {
+                        testBattery();
+                        System.err.println("  --success");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        System.err.println("!!!!!!!!!!!!!!!!!");
+                        System.err.println("  --Unsuccess--  ");
+                        System.err.println("!!!!!!!!!!!!!!!!!");
+                    }
+                    // =============================================
+                    // =================== No-Fly =================
+                    // =============================================
+                    System.err.println("Testing No-Fly Zone");
+                    try {
+                        testNoFlyZone();
 
+                        System.err.println("  --success");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        System.err.println("!!!!!!!!!!!!!!!!!");
+                        System.err.println("  --Unsuccess--  ");
+                        System.err.println("!!!!!!!!!!!!!!!!!");
+                    }
+
+                    System.err.println("===============================");
+                    System.err.println("");
+                }
+            }
+        }
+        System.err.println("Everything Success");
+
+    }
+
+    // =================================================================
+
+    private void testDBAngle() {
         final String pathQuery = "select * from FLIGHTPATH";
         String jdbcString = "jdbc:derby://localhost:" + DBport + "/derbyDB";
-
         try {
             conn = DriverManager.getConnection(jdbcString);
             statement = conn.createStatement();
@@ -48,23 +130,13 @@ public class Apptest {
                 } else {
                     assertEquals(degreeTwoPoints(start_x, start_y, end_x, end_y), angle);
                 }
-
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    @Test
-    public void testPathConnectness() {
-        Random r = new Random();
-        int date = r.nextInt(28);
-        int month = r.nextInt(12);
-        int year = r.nextInt(1) + 2022;
-
-        String[] a = { String.valueOf(date), String.valueOf(month), String.valueOf(year), Webport, DBport };
-
-        App.main(a);
+    private void testPathConnectness() {
 
         final String pathQuery = "select * from FLIGHTPATH";
         String jdbcString = "jdbc:derby://localhost:" + DBport + "/derbyDB";
@@ -90,17 +162,7 @@ public class Apptest {
         }
     }
 
-    @Test
-    public void testStartingEndingAPT() {
-        Random r = new Random();
-        int date = r.nextInt(28);
-        int month = r.nextInt(12);
-        int year = r.nextInt(1) + 2022;
-
-        String[] a = { String.valueOf(date), String.valueOf(month), String.valueOf(year), Webport, DBport };
-
-        App.main(a);
-        LongLat appletonTower = new LongLat(-3.186874, 55.944494);
+    private void testStartingEndingAPT() {
         final String pathQuery = "select * from FLIGHTPATH";
         String jdbcString = "jdbc:derby://localhost:" + DBport + "/derbyDB";
 
@@ -119,9 +181,7 @@ public class Apptest {
                 end_x = rs.getDouble("TOLONGITUDE");
                 end_y = rs.getDouble("TOLATITUDE");
             }
-
             LongLat end = new LongLat(end_x, end_y);
-
             assertTrue(start.closeTo(end));
             assertTrue(start.closeTo(appletonTower));
             assertTrue(end.closeTo(appletonTower));
@@ -130,16 +190,8 @@ public class Apptest {
         }
     }
 
-    @Test
-    public void testBattery() {
-        Random r = new Random();
-        int date = r.nextInt(28);
-        int month = r.nextInt(12);
-        int year = r.nextInt(1) + 2022;
+    private void testBattery() {
 
-        String[] a = { String.valueOf(date), String.valueOf(month), String.valueOf(year), Webport, DBport };
-
-        App.main(a);
         final String pathQuery = "select * from FLIGHTPATH";
         String jdbcString = "jdbc:derby://localhost:" + DBport + "/derbyDB";
         int battery = 0;
@@ -161,23 +213,28 @@ public class Apptest {
         }
     }
 
-    @Test
-    public void testEveryday() {
-        for (int year = 2022; year <= 2023; year++) {
-            for (int month = 1; month <= 12; month++) {
-                for (int date = 1; date <= 28; date++) {
-                    String[] a = { String.valueOf(date), String.valueOf(month), String.valueOf(year), Webport, DBport };
-                    System.err.println(String.valueOf(date));
-                    System.err.println(String.valueOf(month));
-                    System.err.println(String.valueOf(year));
-                    System.err.println("===============================");
-                    App.main(a);
-                }
+    private void testNoFlyZone() {
+        final String pathQuery = "select * from FLIGHTPATH";
+        String jdbcString = "jdbc:derby://localhost:" + DBport + "/derbyDB";
+        try {
+            conn = DriverManager.getConnection(jdbcString);
+            statement = conn.createStatement();
+            PreparedStatement psOrderQuery = this.conn.prepareStatement(pathQuery);
+            ResultSet rs = psOrderQuery.executeQuery();
+            while (rs.next()) {
+                Double start_x = rs.getDouble("FROMLONGITUDE");
+                Double start_y = rs.getDouble("FROMLATITUDE");
+                LongLat start = new LongLat(start_x, start_y);
+                Double end_x = rs.getDouble("TOLONGITUDE");
+                Double end_y = rs.getDouble("TOLATITUDE");
+                LongLat end = new LongLat(end_x, end_y);
+                assertEquals(true, canFly(start, end, noFlyLongLat));
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
-    // =================================================================
     /**
      * Method to calculate the degree of the direct connected line between start and
      * end respect to X axis
@@ -218,5 +275,39 @@ public class Apptest {
         double distance = Math.sqrt(Math.pow(start_x - end_x, 2) + Math.pow(start_y - end_y, 2));
         int cost = (int) Math.floor(distance / 0.00015);
         return cost;
+    }
+
+    /**
+     * Method to check if the line connected the starting point and ending point
+     * touches or too close to the no-fly zones.
+     * 
+     * @param start        the starting position
+     * @param end          the ending position
+     * @param noFlyLongLat the list of the no-fly zones edgepoints
+     * @return true if the connected line between the starting point and ending
+     *         point is safe to fly, false otherwise
+     */
+    private boolean canFly(LongLat start, LongLat end, List<List<LongLat>> noFlyLongLat) {
+        // go over every small zones in the no-fly zones
+        for (List<LongLat> currZonePoints : noFlyLongLat) {
+            for (int i = 0; i < currZonePoints.size() - 1; i++) {
+                // get two adjacent points in the no-fly zone
+                LongLat currLinePoint1 = currZonePoints.get(i);
+                LongLat currLinePoint2 = currZonePoints.get(i + 1);
+                // check if the edge point is too close to the fly path
+                // check if the fly path intersect with the no-fly zone edge line
+                boolean intersect = Line2D.linesIntersect(start.longitude, start.latitude, end.longitude, end.latitude,
+                        currLinePoint1.longitude, currLinePoint1.latitude, currLinePoint2.longitude,
+                        currLinePoint2.latitude);
+                // return false if fly path is too close to the edge point of it intersect with
+                // the no-fly zone edge line
+                if (intersect) {
+                    return false;
+                }
+            }
+        }
+        // return true if fly path is not too close to the edge point, and it is not
+        // intersect with the no-fly zone edge line
+        return true;
     }
 }

@@ -8,6 +8,7 @@ package uk.ac.ed.inf;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.awt.geom.Line2D;
 
 public class PathUtils {
@@ -51,6 +52,7 @@ public class PathUtils {
      *         point is safe to fly, false otherwise
      */
     public static boolean canFly(LongLat start, LongLat end, List<List<LongLat>> noFlyLongLat) {
+        boolean point1TooClose, point2TooClose;
         // go over every small zones in the no-fly zones
         for (List<LongLat> currZonePoints : noFlyLongLat) {
             for (int i = 0; i < currZonePoints.size() - 1; i++) {
@@ -62,8 +64,21 @@ public class PathUtils {
                         end.latitude, currLinePoint1.longitude, currLinePoint1.latitude);
                 double point2ToLineDistance = Line2D.ptSegDist(start.longitude, start.latitude, end.longitude,
                         end.latitude, currLinePoint2.longitude, currLinePoint2.latitude);
+                // ensure the distance to the line is perpendicular distance
+                // if no perpendicular line from point to line, ignore it
+                if (point1ToLineDistance == currLinePoint1.distanceTo(start)
+                        || point1ToLineDistance == currLinePoint1.distanceTo(end))
+                    point1TooClose = false;
+                else
+                    point1TooClose = point1ToLineDistance < 0.00015;
+
+                if (point2ToLineDistance == currLinePoint1.distanceTo(start)
+                        || point2ToLineDistance == currLinePoint1.distanceTo(end))
+                    point2TooClose = false;
+                else
+                    point2TooClose = point2ToLineDistance < 0.00015;
                 // check if the edge point is too close to the fly path
-                boolean pointTooClose = !((point1ToLineDistance > 0.00015) && (point2ToLineDistance > 0.00015));
+                boolean pointTooClose = point1TooClose && point2TooClose;
                 // check if the fly path intersect with the no-fly zone edge line
                 boolean intersect = Line2D.linesIntersect(start.longitude, start.latitude, end.longitude, end.latitude,
                         currLinePoint1.longitude, currLinePoint1.latitude, currLinePoint2.longitude,
@@ -231,6 +246,28 @@ public class PathUtils {
             if (currPath != null)
                 allPaths.add(currPath);
         }
+        // if cannot find a path, randomly set the landmarks and search the path
+        if (allPaths.size() == 0) {
+            Random random = new Random();
+            List<LongLat> currPath = null;
+            double minLongitude = -3.192473;
+            double maxLongitude = -3.184319;
+            double minLatitude = 55.942617;
+            double maxLatitude = 55.946233;
+
+            while (true) {
+                // generate a random position
+                Double randX = random.nextDouble() * (maxLongitude - minLongitude) + minLongitude;
+                Double randY = random.nextDouble() * (maxLatitude - minLatitude) + minLatitude;
+                // search the path
+                currPath = PathUtils.organizePathThoughLandmark(start, new LongLat(randX, randY), end, noFlyLongLat);
+                // stop until find one
+                if (currPath != null)
+                    break;
+            }
+            return currPath;
+        }
+
         // find the shortest among all possible paths
         return chooseShortestPath(allPaths);
     }
@@ -282,7 +319,6 @@ public class PathUtils {
             firstPath.addAll(secondPath);
             return firstPath;
         }
-
     }
 
     /**
